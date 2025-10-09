@@ -1,22 +1,29 @@
-FROM python:3.9
+# Backend Dockerfile
 
+FROM python:3.9-slim
+
+# Set work directory
 WORKDIR /app/backend
 
-COPY requirements.txt /app/backend
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y gcc default-libmysqlclient-dev pkg-config \
-    && rm -rf /var/lib/apt/lists/*
+# Copy dependencies file
+COPY requirements.txt .
 
+# Install system dependencies and Python packages
+RUN apt-get update && \
+    apt-get install -y gcc default-libmysqlclient-dev pkg-config && \
+    pip install --upgrade pip && \
+    pip install mysqlclient && \
+    pip install --no-cache-dir -r requirements.txt && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install app dependencies
-RUN pip install mysqlclient
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the entire project
+COPY . .
 
-COPY . /app/backend
-
+# Expose the application port
 EXPOSE 8000
-#RUN python manage.py migrate
-#RUN python manage.py makemigrations
+
+# Run database migrations automatically (optional)
+# RUN python manage.py makemigrations && python manage.py migrate
+
 # Run Django server
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
