@@ -1,0 +1,22 @@
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: notes-app-deployment
+  namespace: nginx
+ 
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notes-app
+  template:
+    metadata:
+      labels: 
+        app: notes-app
+    spec:
+      containers:
+        - name: notes-app-container
+          image: worlddev162/notes-app:latest
+          ports:
+            - containerPort: 8000
